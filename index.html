@@ -1,1 +1,51 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VIBE RAIDERS · Neon Survival</title><link rel="stylesheet" href="style.css"></head><body><canvas id="game"></canvas><div class="grain"></div><header><a class="brand" href="./"><span class="logo">V</span> VIBE RAIDERS <small>NEON SURVIVAL</small></a><button id="sound" aria-label="Toggle sound">SOUND ON ♫</button></header><main id="menu"><div class="eyebrow">ENTER THE GRID / SURVIVE THE NIGHT</div><h1>GOOD VIBES.<br><em>BAD COMPANY.</em></h1><p>The grid is overrun. Grab your pulse blaster,<br>keep moving, and give the darkness something to fear.</p><div class="cards"><div><b>01</b><span>DROP IN</span><small>One raider. Zero backup.</small></div><div><b>02</b><span>LIGHT IT UP</span><small>Blast through the swarm.</small></div><div><b>03</b><span>STAY ALIVE</span><small>Every wave hits harder.</small></div></div><button class="primary" id="play">LET’S RAID <span>↗</span></button><div class="controls">WASD move · Mouse / ← → look · Click / Space fire<br>Shift sprint · Esc pause · Touch controls on mobile</div><div class="note">An original fan concept · Placeholder artwork · No wallet required</div></main><aside id="hud" hidden><div class="hudtop"><div>SHIELD <b id="health">100</b><div class="bar"><i id="healthbar"></i></div></div><div>WAVE <b id="wave">01</b></div><div>SCORE <b id="score">0000</b></div></div><div id="crosshair">+</div><div id="message">CLEAR THE GRID</div><div class="bottom">PULSE BLASTER <span>∞ ENERGY</span></div></aside><section id="end" hidden><div class="eyebrow" id="endtag">SIGNAL LOST</div><h2 id="endtitle">You made some noise.</h2><p id="result"></p><button class="primary" id="restart">RAID AGAIN ↗</button><button id="resume" hidden>RESUME RAID</button></section><div id="touch" hidden><div><button data-key="ArrowLeft">↶</button><button data-key="w">↑</button><button data-key="ArrowRight">↷</button><br><button data-key="a">←</button><button data-key="s">↓</button><button data-key="d">→</button></div><button id="fire">FIRE</button></div><script src="game.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f7f5ec">
+  <meta name="description" content="Pick your vibe viber and jump into a colourful first-person survival adventure. Free to play, no wallet required.">
+  <title>Vibe Raiders · A little chaos. A lot of vibe.</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="game" aria-label="First-person survival arena"></canvas>
+<header class="site-header">
+  <a class="brand" href="./"><span class="logo">v.</span> vibe<span class="brand-light">raiders</span></a>
+  <nav aria-label="Main navigation"><a href="#crew" class="menu-link">Meet the crew</a><a href="#how-to" class="menu-link">How to play</a><button id="sound" aria-label="Toggle sound" aria-pressed="true">♫ SOUND ON</button></nav>
+</header>
+<main id="menu">
+  <section class="hero">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="status-dot"></span> SMALL ROBOTS. BIG ADVENTURE.</div>
+      <h1>A little chaos.<br>A lot of <em>vibe.</em><span class="spark">✳</span></h1>
+      <p>Your favourite little troublemakers have a world to raid.<br class="desktop-break"> Pick your viber, grab a blaster, and make some noise.</p>
+      <div class="hero-actions"><button class="primary" id="play">LET’S PLAY <span>↗</span></button><a class="secondary" href="#crew">Find your viber ↓</a></div>
+      <div class="play-note"><span>✦ FREE TO PLAY</span><span>NO WALLET NEEDED</span><span>JUST GOOD VIBES</span></div>
+    </div>
+    <div class="hero-art">
+      <span class="orbit orbit-one"></span><span class="orbit orbit-two"></span>
+      <span class="sticker sticker-top">100% MAIN CHARACTER ENERGY</span>
+      <div class="portrait-card"><div class="portrait-top"><span>MEET YOUR RAIDER</span><span id="hero-id">NO. 123</span></div><img id="hero-image" src="assets/viber-123.png" alt="Lavender Viber with a cream cap and blue eyes" width="1080" height="1080"><div class="portrait-bottom"><div><small>YOUR CURRENT VIBE</small><strong id="hero-name">Cloud Captain</strong></div><span class="portrait-star">✳</span></div></div>
+      <span class="sticker sticker-bottom">BUILT DIFFERENT. VIBES INCLUDED. ↗</span>
+      <span class="floating-plus">+</span>
+    </div>
+  </section>
+  <div class="marquee" aria-hidden="true"><span>GOOD VIBES ONLY</span> ✳ <span>RAID. REPEAT.</span> ✳ <span>FIND YOUR PEOPLE</span> ✳ <span>GOOD VIBES ONLY</span> ✳ <span>RAID. REPEAT.</span></div>
+  <section id="crew" class="crew-section">
+    <div class="section-heading"><div><div class="eyebrow">THE VERY GOOD TROUBLEMAKERS</div><h2>Pick your kind of weird.</h2></div><p>Four personalities. One mission.<br>Keep the good vibes alive.</p></div>
+    <div class="crew-grid" role="group" aria-label="Choose your raider">
+      <button class="crew-card selected" data-raider="0" aria-pressed="true"><div class="crew-image mint"><span class="number">01 / 123</span><span class="selected-label">✓ SELECTED</span><img src="assets/viber-123.png" alt="Lavender Viber with cream cap and blue eyes" width="1080" height="1080" loading="lazy"></div><div class="crew-info"><div><strong>Cloud Captain</strong><small>HEAD IN THE CLOUDS. AIM ON POINT.</small></div><span>↗</span></div></button>
+      <button class="crew-card" data-raider="1" aria-pressed="false"><div class="crew-image lilac"><span class="number">02 / 010</span><span class="selected-label">✓ SELECTED</span><img src="assets/viber-10.png" alt="Green Viber with oversized turquoise glasses and a cap" width="1080" height="1080" loading="lazy"></div><div class="crew-info"><div><strong>Mint Condition</strong><small>FRESH LOOK. ABSOLUTE MENACE.</small></div><span>↗</span></div></button>
+      <button class="crew-card" data-raider="2" aria-pressed="false"><div class="crew-image sand"><span class="number">03 / 042</span><span class="selected-label">✓ SELECTED</span><img src="assets/viber-42.png" alt="Orange Viber with green hat and turquoise eyes" width="1080" height="1080" loading="lazy"></div><div class="crew-info"><div><strong>Orange Crush</strong><small>A LITTLE SUNSHINE. A LITTLE CHAOS.</small></div><span>↗</span></div></button>
+      <button class="crew-card" data-raider="3" aria-pressed="false"><div class="crew-image blue"><span class="number">04 / 048</span><span class="selected-label">✓ SELECTED</span><img src="assets/viber-48.png" alt="Teal Viber with propeller hat and mint glasses" width="1080" height="1080" loading="lazy"></div><div class="crew-info"><div><strong>Propeller Head</strong><small>ZERO CHILL. MAXIMUM LIFT.</small></div><span>↗</span></div></button>
+    </div>
+    <p class="collection-credit">Character artwork from the <a href="https://testnet.vibevibe.fun/vibe-vibers/for-raiders" target="_blank" rel="noopener noreferrer">vibe vibers Raiders collection ↗</a>. Names above are original nicknames for this fan game.</p>
+  </section>
+  <section id="how-to" class="how-section"><div><div class="eyebrow">LESS READING. MORE RAIDING.</div><h2>Your next adventure<br>is one click away.</h2><p>Survive the swarm in a bright 3D-style arena.<br>Every wave gets tougher. Every hit counts.</p><button id="play-bottom" class="primary">DROP INTO THE ARENA <span>↗</span></button></div><div class="steps"><div><b>01</b><span><strong>Make your move.</strong><small>WASD to move · Mouse or ← → to turn · Shift to sprint.</small></span></div><div><b>02</b><span><strong>Bring the good energy.</strong><small>Click or Space to fire. Keys 1 / 2 / 3 switch blaster, rifle, and shotgun.</small></span></div><div><b>03</b><span><strong>Keep the vibe alive.</strong><small>Clear waves. Earn points. Each takedown restores 3 shield.</small></span></div><p>Esc to pause · Music + SFX included · Touch controls on mobile</p></div></section>
+  <footer><a class="brand" href="./">vibe<span class="brand-light">raiders</span></a><span>An independent fan game. No wallet connection or NFT ownership required.</span><a href="#crew">Find your vibe ↑</a></footer>
+</main>
+<aside id="hud" hidden><div class="hudtop"><div>SHIELD <b id="health">100</b><div class="bar"><i id="healthbar"></i></div></div><div>WAVE <b id="wave">01</b></div><div>SCORE <b id="score">0000</b></div><button id="pause" aria-label="Pause game">Ⅱ PAUSE</button></div><div class="weapon-selector" role="group" aria-label="Choose weapon"><button data-weapon="0" class="active" aria-pressed="true">1 <span>BLASTER</span></button><button data-weapon="1" aria-pressed="false">2 <span>RIFLE</span></button><button data-weapon="2" aria-pressed="false">3 <span>SHOTGUN</span></button></div><div id="crosshair">+</div><div id="message" aria-live="polite">CLEAR THE GRID</div><div class="bottom"><img id="player-avatar" src="assets/viber-123.png" alt="Your selected raider"><span id="player-name">Cloud Captain</span><span><b id="weapon-name">PULSE BLASTER</b> · ∞ ENERGY</span></div></aside>
+<section id="end" role="dialog" aria-modal="true" aria-labelledby="endtitle" hidden><div class="eyebrow" id="endtag">SIGNAL LOST</div><h2 id="endtitle">You made some noise.</h2><p id="result"></p><button class="primary" id="restart">RAID AGAIN ↗</button><button id="resume" hidden>RESUME RAID</button><button id="back-home">BACK TO THE CREW</button></section>
+<div id="touch" hidden><div><button data-key="ArrowLeft" aria-label="Turn left">↶</button><button data-key="w" aria-label="Move forward">↑</button><button data-key="ArrowRight" aria-label="Turn right">↷</button><br><button data-key="a" aria-label="Move left">←</button><button data-key="s" aria-label="Move backward">↓</button><button data-key="d" aria-label="Move right">→</button></div><button id="fire">FIRE</button></div>
+<script src="game.js"></script>
+</body></html>
