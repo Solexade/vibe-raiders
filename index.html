@@ -2,25 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <meta name="theme-color" content="#f7f5ec">
   <meta name="description" content="Pick your vibe viber and jump into a colourful first-person survival adventure. Free to play, no wallet required.">
   <title>Vibe Raiders · A little chaos. A lot of vibe.</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<canvas id="game" aria-label="First-person survival arena"></canvas>
+<canvas id="game" aria-label="True 3D first-person survival arena"></canvas>
 <header class="site-header">
   <a class="brand" href="./"><span class="logo">v.</span> vibe<span class="brand-light">raiders</span></a>
-  <nav aria-label="Main navigation"><a href="#crew" class="menu-link">Meet the crew</a><a href="#how-to" class="menu-link">How to play</a><button id="sound" aria-label="Toggle sound" aria-pressed="true">♫ SOUND ON</button></nav>
+  <nav aria-label="Main navigation"><a href="#crew" class="menu-link">Meet the crew</a><a href="#how-to" class="menu-link">How to play</a><details class="audio-settings"><summary aria-label="Sound volume settings">☷ MIX</summary><div><label for="music-volume">MUSIC <input id="music-volume" type="range" min="0" max="1" step=".05" value=".35"></label><label for="effects-volume">SFX <input id="effects-volume" type="range" min="0" max="1" step=".05" value=".7"></label></div></details><button id="sound" aria-label="Toggle sound" aria-pressed="true">♫ SOUND ON</button></nav>
 </header>
 <main id="menu">
   <section class="hero">
     <div class="hero-copy">
-      <div class="eyebrow"><span class="status-dot"></span> SMALL ROBOTS. BIG ADVENTURE.</div>
+      <div class="eyebrow"><span class="status-dot"></span> SMALL ROBOTS. A BIGGER 3D WORLD.</div>
       <h1>A little chaos.<br>A lot of <em>vibe.</em><span class="spark">✳</span></h1>
       <p>Your favourite little troublemakers have a world to raid.<br class="desktop-break"> Pick your viber, grab a blaster, and make some noise.</p>
       <div class="hero-actions"><button class="primary" id="play">LET’S PLAY <span>↗</span></button><a class="secondary" href="#crew">Find your viber ↓</a></div>
-      <div class="play-note"><span>✦ FREE TO PLAY</span><span>NO WALLET NEEDED</span><span>JUST GOOD VIBES</span></div>
+      <p id="launch-error" role="alert" hidden></p><div class="play-note"><span>✦ FREE TO PLAY</span><span>NO WALLET NEEDED</span><span>JUST GOOD VIBES</span></div>
     </div>
     <div class="hero-art">
       <span class="orbit orbit-one"></span><span class="orbit orbit-two"></span>
@@ -41,11 +42,11 @@
     </div>
     <p class="collection-credit">Character artwork from the <a href="https://testnet.vibevibe.fun/vibe-vibers/for-raiders" target="_blank" rel="noopener noreferrer">vibe vibers Raiders collection ↗</a>. Names above are original nicknames for this fan game.</p>
   </section>
-  <section id="how-to" class="how-section"><div><div class="eyebrow">LESS READING. MORE RAIDING.</div><h2>Your next adventure<br>is one click away.</h2><p>Survive the swarm in a bright 3D-style arena.<br>Every wave gets tougher. Every hit counts.</p><button id="play-bottom" class="primary">DROP INTO THE ARENA <span>↗</span></button></div><div class="steps"><div><b>01</b><span><strong>Make your move.</strong><small>WASD to move · Mouse or ← → to turn · Shift to sprint.</small></span></div><div><b>02</b><span><strong>Bring the good energy.</strong><small>Click or Space to fire. Keys 1 / 2 / 3 switch blaster, rifle, and shotgun.</small></span></div><div><b>03</b><span><strong>Keep the vibe alive.</strong><small>Clear waves. Earn points. Each takedown restores 3 shield.</small></span></div><p>Esc to pause · Music + SFX included · Touch controls on mobile</p></div></section>
+  <section id="how-to" class="how-section"><div><div class="eyebrow">LESS READING. MORE RAIDING.</div><h2>Your next adventure<br>is one click away.</h2><p>Survive the swarm in a true 3D playground.<br>Every wave gets tougher. Every hit counts.</p><button id="play-bottom" class="primary">DROP INTO THE ARENA <span>↗</span></button></div><div class="steps"><div><b>01</b><span><strong>Make your move.</strong><small>WASD to move · Mouse to look · Shift to sprint · E to hop.</small></span></div><div><b>02</b><span><strong>Bring the good energy.</strong><small>Hold click or Space to fire. Right-click to aim. 1 / 2 / 3 switch weapons. R reloads.</small></span></div><div><b>03</b><span><strong>Keep the vibe alive.</strong><small>Clear waves. Earn points. Each takedown restores 3 shield. Watch out for elite Raiders every third wave.</small></span></div><p>Esc to pause · Drag the arena to look on mobile · Music + SFX sliders in MIX</p></div></section>
   <footer><a class="brand" href="./">vibe<span class="brand-light">raiders</span></a><span>An independent fan game. No wallet connection or NFT ownership required.</span><a href="#crew">Find your vibe ↑</a></footer>
 </main>
-<aside id="hud" hidden><div class="hudtop"><div>SHIELD <b id="health">100</b><div class="bar"><i id="healthbar"></i></div></div><div>WAVE <b id="wave">01</b></div><div>SCORE <b id="score">0000</b></div><button id="pause" aria-label="Pause game">Ⅱ PAUSE</button></div><div class="weapon-selector" role="group" aria-label="Choose weapon"><button data-weapon="0" class="active" aria-pressed="true">1 <span>BLASTER</span></button><button data-weapon="1" aria-pressed="false">2 <span>RIFLE</span></button><button data-weapon="2" aria-pressed="false">3 <span>SHOTGUN</span></button></div><div id="crosshair">+</div><div id="message" aria-live="polite">CLEAR THE GRID</div><div class="bottom"><img id="player-avatar" src="assets/viber-123.png" alt="Your selected raider"><span id="player-name">Cloud Captain</span><span><b id="weapon-name">PULSE BLASTER</b> · ∞ ENERGY</span></div></aside>
+<aside id="hud" hidden><div class="hudtop"><div>SHIELD <b id="health">100</b><div class="bar"><i id="healthbar"></i></div></div><div>WAVE <b id="wave">01</b></div><div>SCORE <b id="score">0000</b></div><button id="pause" aria-label="Pause game">Ⅱ PAUSE</button></div><div class="weapon-selector" role="group" aria-label="Choose weapon"><button data-weapon="0" class="active" aria-pressed="true">1 <span>BLASTER</span></button><button data-weapon="1" aria-pressed="false">2 <span>RIFLE</span></button><button data-weapon="2" aria-pressed="false">3 <span>SHOTGUN</span></button></div><div id="crosshair" aria-hidden="true"><i></i><i></i><i></i><i></i></div><div id="damage-flash"></div><div id="arena-meta"></div><div id="message" aria-live="polite">CLEAR THE GRID</div><div class="bottom"><img id="player-avatar" src="assets/viber-123.png" alt="Your selected raider"><span id="player-name">Cloud Captain</span><span><b id="weapon-name">PULSE BLASTER</b> · UNLIMITED RESERVES</span><div class="ammo-display"><strong id="ammo">16 / 16</strong><button id="reload" aria-label="Reload weapon">R · RELOAD</button></div></div></aside>
 <section id="end" role="dialog" aria-modal="true" aria-labelledby="endtitle" hidden><div class="eyebrow" id="endtag">SIGNAL LOST</div><h2 id="endtitle">You made some noise.</h2><p id="result"></p><button class="primary" id="restart">RAID AGAIN ↗</button><button id="resume" hidden>RESUME RAID</button><button id="back-home">BACK TO THE CREW</button></section>
-<div id="touch" hidden><div><button data-key="ArrowLeft" aria-label="Turn left">↶</button><button data-key="w" aria-label="Move forward">↑</button><button data-key="ArrowRight" aria-label="Turn right">↷</button><br><button data-key="a" aria-label="Move left">←</button><button data-key="s" aria-label="Move backward">↓</button><button data-key="d" aria-label="Move right">→</button></div><button id="fire">FIRE</button></div>
-<script src="game.js"></script>
+<div id="touch" hidden><div><button data-key="ArrowLeft" aria-label="Turn left">↶</button><button data-key="w" aria-label="Move forward">↑</button><button data-key="ArrowRight" aria-label="Turn right">↷</button><br><button data-key="a" aria-label="Move left">←</button><button data-key="s" aria-label="Move backward">↓</button><button data-key="d" aria-label="Move right">→</button></div><div class="touch-actions"><div><button id="jump">HOP</button><button id="aim" aria-pressed="false">AIM</button></div><button id="fire">FIRE</button></div></div>
+<script type="module" src="game.js"></script>
 </body></html>
