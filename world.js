@@ -48,49 +48,69 @@ export function makeRaider(index, elite = false) {
   return model;
 }
 
-export function makeArena(scene, mobile) {
-  const colliders=[], solidMeshes=[], animated=[], portals=[];
-  function solid(x,z,w,d,h,color){const mesh=box(scene,x,h/2,z,w,h,d,color);solidMeshes.push(mesh);colliders.push({x,z,w:w/2,d:d/2});return mesh}
-  scene.background=new THREE.Color(0xb9e0ec);
-  scene.fog=new THREE.Fog(0xc9e5df,28,72);
-  const hemisphere=new THREE.HemisphereLight(0xf5fbff,0xc0ba8d,2.5);scene.add(hemisphere);
-  const sun=new THREE.DirectionalLight(0xfff3d7,3.2);sun.position.set(-14,25,12);sun.castShadow=true;
-  sun.shadow.mapSize.set(mobile?512:1024,mobile?512:1024);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;sun.shadow.normalBias=.035;scene.add(sun);
-  const floor=new THREE.InstancedMesh(cube,material(0xece2bd),22*22);const m=new THREE.Matrix4();let n=0;
-  for(let x=-21;x<=21;x+=2)for(let z=-21;z<=21;z+=2){m.compose(new THREE.Vector3(x,-.12,z),new THREE.Quaternion(),new THREE.Vector3(1.98,.2,1.98));floor.setMatrixAt(n,m);floor.setColorAt(n++,new THREE.Color((Math.abs(x)<5||Math.abs(z)<5)?0xf0e7d0:(Math.floor((x+z)/2)%2?0xe4d8b4:0xeaddbf)))}
-  floor.receiveShadow=true;scene.add(floor);solidMeshes.push(floor);
-  for(const [x,z,w,d,color] of [[0,-22.5,46,1,0xb9a5d8],[0,22.5,46,1,0x8dbfa6],[-22.5,0,1,44,0xe6a07f],[22.5,0,1,44,0xe6cb84]]){
-    solid(x,z,w,d,3,color);box(scene,x,3.05,z,w+.08,.12,d+.08,0xf8f0d6);
+// Classic open-grid arena. Textured surfaces stay visually simple so the
+// animated Raiders remain the focus; the earlier maze pattern is preserved.
+function concreteTexture(tile = false) {
+  const canvas=document.createElement('canvas');canvas.width=canvas.height=512;
+  const ctx=canvas.getContext('2d'),image=ctx.createImageData(512,512);
+  let seed=17431;
+  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  for(let y=0;y<512;y++)for(let x=0;x<512;x++){
+    const pore=random(),grain=(random()-.5)*19;
+    const mottling=Math.sin(x*.024)*Math.cos(y*.031)*2+Math.sin((x+y)*.008)*1.5;
+    const v=Math.max(0,Math.min(255,220+grain+mottling-(pore>.994?40:0)));
+    const i=(y*512+x)*4;image.data[i]=v;image.data[i+1]=v;image.data[i+2]=v;image.data[i+3]=255;
   }
-  for(const x of [-19,-11,-3,5,13,21])for(const z of [-22.5,22.5]){box(scene,x,2.1,z,.16,1.4,1.08,0xffffff);box(scene,x,3.45,z,.32,.6,.32,0x7fa491)}
-  // Central garden: rounded canopy, sculptural crystal, and waist-high cover.
-  solid(0,0,4,4,.75,0xb1cbb1);box(scene,0,.8,0,3.65,.12,3.65,0x7ca78d);
-  const crystal=new THREE.Mesh(new THREE.OctahedronGeometry(.95),material(0xa48ad3));crystal.position.set(0,2.1,0);crystal.castShadow=true;scene.add(crystal);animated.push(crystal);
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(1.45,.045,8,36),material(0xf2c16c,true));ring.rotation.x=Math.PI/2;ring.position.set(0,1.4,0);scene.add(ring);animated.push(ring);
-  // Colour-block cover islands, archways, and trees give the arena depth and sight lines.
-  for(const [x,z,c] of [[-8,-7,0xb7a4d3],[8,-7,0xe6a080],[-8,7,0x8fbfa4],[8,7,0xe3c67c]]){
-    solid(x,z,2.8,2.8,1.25,c);box(scene,x,1.33,z,2.95,.16,2.95,0xf6eed5);
-    solid(x+1.8,z-1.9,1.2,1.2,2.5,c);box(scene,x+1.8,2.6,z-1.9,1.32,.14,1.32,0xf6eed5);
+  ctx.putImageData(image,0,0);
+  for(let i=0;i<100;i++){
+    const x=random()*512,y=random()*512;ctx.strokeStyle=`rgba(75,71,61,${random()*.035})`;ctx.lineWidth=random()*2+.3;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+random()*70-35,y+random()*9-4);ctx.stroke();
   }
-  for(const [x,z,c] of [[-15,0,0xb39ad4],[15,0,0xe6a080],[0,-15,0x8cbba1],[0,15,0xe2c67e]]){
-    const sideways=x!==0;
-    for(const sign of [-1,1])solid(x+(sideways?0:sign*2.4),z+(sideways?sign*2.4:0),.7,.7,4.8,c);
-    box(scene,x,4.8,z,sideways?.9:5.5,.5,sideways?5.5:.9,c);
-    box(scene,x,4.47,z,sideways?.35:4.5,.08,sideways?4.5:.35,0xf5e5ac,true);
+  if(tile){
+    ctx.fillStyle='#77756e';ctx.fillRect(0,0,512,2);ctx.fillRect(0,0,2,512);
+    ctx.fillStyle='#f0efdf';ctx.fillRect(2,2,510,1);ctx.fillRect(2,2,1,510);
+    ctx.strokeStyle='rgba(97,93,80,.10)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(438,0);ctx.lineTo(433,12);ctx.lineTo(440,18);ctx.lineTo(435,28);ctx.stroke();
   }
-  for(const [x,z] of [[-18,-9],[18,-9],[-18,9],[18,9],[-10,-18],[10,18]]){
-    solid(x,z,1,1,1.15,0xe4aa88);box(scene,x,1.4,z,.3,1.8,.3,0x92765b);
-    const leaves=new THREE.Mesh(new THREE.IcosahedronGeometry(1.4,0),material(0x91b889));leaves.position.set(x,3,z);leaves.castShadow=true;scene.add(leaves);
+  const texture=new THREE.CanvasTexture(canvas);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;
+  texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=4;return texture;
+}
+export function makeArena(scene,mobile){
+  const colliders=[],solidMeshes=[],animated=[],portals=[];
+  scene.background=new THREE.Color(0xc4e1e8);scene.fog=new THREE.Fog(0xd7e5df,35,90);
+  scene.add(new THREE.HemisphereLight(0xeaf5ff,0xc8bda2,1.8));
+  const sun=new THREE.DirectionalLight(0xfff2db,3.1);sun.position.set(-16,25,14);sun.castShadow=true;
+  sun.shadow.mapSize.set(mobile?512:2048,mobile?512:2048);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;sun.shadow.normalBias=.025;sun.shadow.bias=-.0001;sun.shadow.radius=3;scene.add(sun);
+  const wallTexture=concreteTexture(),floorTexture=concreteTexture(true);
+  function surface(texture,color,w,h){
+    const map=texture.clone();map.repeat.set(w,h);map.needsUpdate=true;
+    const bump=map.clone();bump.colorSpace=THREE.NoColorSpace;bump.needsUpdate=true;
+    return new THREE.MeshStandardMaterial({color,map,bumpMap:bump,bumpScale:.007,roughness:.91,metalness:0});
   }
-  // Portals mark the four enemy entry points.
-  for(const [x,z] of [[-17,-17],[17,-17],[-17,17],[17,17]]){
-    const portal=new THREE.Group();portal.position.set(x,0,z);
-    const torus=new THREE.Mesh(new THREE.TorusGeometry(1.25,.16,8,32),material(0xb99ce6));torus.position.y=1.5;portal.add(torus);
-    const center=new THREE.Mesh(new THREE.CircleGeometry(1.17,32),new THREE.MeshBasicMaterial({color:0xbda8e9,transparent:true,opacity:.22,side:THREE.DoubleSide}));center.position.y=1.5;portal.add(center);portal.lookAt(0,0,0);
-    scene.add(portal);portals.push(portal);box(scene,x,.05,z,3,.15,3,0xd1bce9);
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(44,44),surface(floorTexture,0xeee2bf,22,22));
+  floor.rotation.x=-Math.PI/2;floor.position.y=-.015;floor.receiveShadow=true;scene.add(floor);solidMeshes.push(floor);
+  function solid(x,z,w,d,h,color){
+    const mesh=new THREE.Mesh(cube,surface(wallTexture,color,Math.max(w,d)/2.5,h/2.5));mesh.position.set(x,h/2,z);mesh.scale.set(w,h,d);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);solidMeshes.push(mesh);colliders.push({x,z,w:w/2,d:d/2});return mesh;
   }
-  // Sky islands and soft voxel clouds sit beyond the playable boundary.
-  for(let i=0;i<10;i++){const a=i*Math.PI/5,x=Math.sin(a)*39,z=Math.cos(a)*39;box(scene,x,2,z,6,3,6,i%2?0xaac49b:0xb7a6d3);box(scene,x,3.6,z,6.3,.4,6.3,0xd1dca4);box(scene,x,12+i%3*2,z,6,1.1,2.5,0xf1f4e8);box(scene,x+1.7,12.6+i%3*2,z,3,1.4,2.3,0xf1f4e8)}
-  scene.traverse(object=>{if(object.isMesh&&!object.material.transparent&&!solidMeshes.includes(object))solidMeshes.push(object)});
-  return {colliders,solidMeshes,portals,animated};
+  // The original square perimeter and colourful wall bands, with concrete grain.
+  const colors=[0x9bc3ab,0xbaacd6,0xe6b093,0xe2cf96];
+  for(let side=0;side<4;side++)for(let segment=0;segment<8;segment++){
+    const along=-19.25+segment*5.5,color=colors[(segment+side)%4];
+    const x=side<2?along:(side===2?-22.5:22.5),z=side<2?(side===0?-22.5:22.5):along;
+    const w=side<2?5.5:1,d=side<2?1:5.5;
+    solid(x,z,w,d,3,color);
+    box(scene,x,3.035,z,w+.025,.07,d+.025,0xf3ebd7);
+    box(scene,x,.16,z,w+.015,.12,d+.015,0xc1bda9);
+    box(scene,x,2.4,z,w+.02,.035,d+.02,0xece3cf);
+  }
+  // Original 16×16 map: four double-cell cover columns, with an open centre.
+  // Column 3/12 and row 3–4/11–12, scaled to the current playable footprint.
+  const cell=44/14;
+  for(const [col,row,color] of [[3,3.5,0x9bc3ab],[12,3.5,0xbaacd6],[3,11.5,0xe6b093],[12,11.5,0xe2cf96]]){
+    const x=(col-7.5)*cell,z=(row-7.5)*cell;
+    solid(x,z,cell,cell*2,2.65,color);
+    box(scene,x,2.69,z,cell+.06,.08,cell*2+.06,0xf1e9d6);
+    box(scene,x,.12,z,cell+.035,.16,cell*2+.035,0xc4baa1);
+  }
+  scene.traverse(object=>{if(object.isMesh&&!solidMeshes.includes(object))solidMeshes.push(object)});
+  return {colliders,solidMeshes,animated,portals};
 }

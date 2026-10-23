@@ -20,7 +20,7 @@ window.__test={
  snapshot(){return {hp:enemies.map(e=>e.hp),ammo:[...ammo],gun:weaponIndex,mode,reloadTime,cooldown,swapTime,keys,firing,focus:document.activeElement.id,aim,y:player.y,yaw,pitch}},
  ready(){cooldown=0;swapTime=0},
  empty(){for(const e of enemies)scene.remove(e.model);enemies=[];nextWave=2.99;return wave},
- wall(){player.x=9.8;player.z=11;camera.position.set(9.8,1.65,11);for(const e of enemies){e.x=9.8;e.z=2;e.model.position.set(9.8,0,2)}scene.updateMatrixWorld()},
+ wall(){player.x=44/14*4.5;player.z=18;camera.position.set(player.x,1.65,18);for(const e of enemies){e.x=player.x;e.z=6;e.model.position.set(player.x,0,6)}scene.updateMatrixWorld()},
  boundary(){player.x=0;player.z=-21;enemies.forEach(e=>e.attack=99)},
  death(){player.hp=0;die()},
  elite(){for(const e of enemies)scene.remove(e.model);enemies=[];wave=2;spawnWave();return enemies.some(e=>e.elite&&e.maxHP>=130)},
@@ -61,7 +61,7 @@ with sync_playwright() as p:
     page.evaluate('__test.scenario(2,1000,0,-12)');page.wait_for_timeout(80);page.keyboard.press('Space');page.wait_for_timeout(100)
     assert page.evaluate('__test.snapshot().hp[0]')==1000
     page.evaluate('__test.scenario(1,1000)');page.wait_for_timeout(80)
-    page.keyboard.down('Space');page.wait_for_timeout(600);page.keyboard.up('Space')
+    page.keyboard.down('Space');page.wait_for_function('__test.snapshot().ammo[1]<28',timeout=12000);page.keyboard.up('Space')
     assert page.evaluate('__test.snapshot().ammo[1]')<28
     page.mouse.down(button='right');page.wait_for_timeout(80);assert page.evaluate('__test.snapshot().aim');page.mouse.up(button='right')
     page.keyboard.press('e');page.wait_for_timeout(150);assert page.evaluate('__test.snapshot().y')>0

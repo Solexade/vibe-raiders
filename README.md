@@ -4,7 +4,7 @@ A standalone, true 3D browser survival game built with Three.js. The bright crea
 
 ## What's in the arena
 
-- An open pastel courtyard with cover islands, archways, garden sculptures, trees, animated portals, and distant sky islands.
+- The classic open-grid arena: a square pastel perimeter, four double-cell cover columns in the original map positions, and a clear centre. Concrete grain, subtle slab joints, surface bump mapping, matte materials, and directional shadows add realism without the newer playground props. The arena remains rendered with perspective so the 3D characters, cover, and shooting share consistent depth.
 - Four original voxel interpretations of the collection characters: glowing eyes, walking limbs, different hats/antennas, a rotating propeller, and tougher elite variants every third wave. These are procedural fan-game models, not official 3D collection assets.
 - Three detailed first-person weapons, hand/sleeve models, recoil, muzzle flashes, tracers, aiming, magazines, and reload animations.
 - A pulse blaster (16 rounds), automatic rifle (30 rounds), and eight-pellet shotgun (6 rounds, shorter range). Reserve ammo is unlimited; empty weapons reload on the next firing attempt.
