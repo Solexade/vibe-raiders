@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import {waveDifficulty} from './difficulty.js';
 import {RaiderAudio} from './audio.js';
 import {box, crew, makeRaider, makeArena} from './world.js';
 import {weapons,makeWeapon} from './weapons.js';
@@ -126,23 +127,23 @@ function rebuildFlow(){
 }
 function addEnemy(x,z,index,elite=false){
   const model=makeRaider(index,elite);model.position.set(x,0,z);scene.add(model);
-  const maxHP=(elite?130:48)+Math.max(0,wave-1)*5;
-  const enemy={x,z,model,hp:maxHP,maxHP,attack:Math.random()*.5,phase:Math.random()*6,index,elite,damageTime:0};
+  const difficulty=waveDifficulty(wave),maxHP=elite?difficulty.eliteHealth:difficulty.health;
+  const enemy={x,z,model,hp:maxHP,maxHP,attack:Math.random()*.5,phase:Math.random()*6,index,elite,speed:difficulty.speed*(elite?1.18:1),damage:difficulty.damage*(elite?1.6:1),attackInterval:difficulty.attackInterval,damageTime:0};
   const health=new THREE.Group();box(health,0,0,0,.85,.075,.06,0x34483d);const fill=box(health,0,0,.04,.81,.045,.03,0xc2ed83,true);health.position.y=elite?2.9:2.55;health.visible=false;model.add(health);enemy.health=health;enemy.fill=fill;
   enemy.hitMeshes=[];model.traverse(child=>{if(child.isMesh&&child.parent!==health){child.userData.enemy=enemy;enemy.hitMeshes.push(child)}});
   enemies.push(enemy);return enemy;
 }
 function spawnWave(){
-  wave++;const count=Math.min(4+wave*2,20);
+  wave++;const difficulty=waveDifficulty(wave),count=difficulty.count;
   const corners=[[-17,-17],[17,-17],[-17,17],[17,17]];
   for(let i=0;i<count;i++){
     let x,z;for(let attempt=0;attempt<50;attempt++){
       const corner=corners[i%4];x=corner[0]+(Math.random()-.5)*3;z=corner[1]+(Math.random()-.5)*3;
       if(canStand(x,z,.6)&&Math.hypot(x-player.x,z-player.z)>8)break;
     }
-    if(canStand(x,z,.6))addEnemy(x,z,Math.floor(Math.random()*crew.length),wave%3===0&&i===0);
+    if(canStand(x,z,.6))addEnemy(x,z,Math.floor(Math.random()*crew.length),i<difficulty.elites);
   }
-  audio.wave();notice(`WAVE ${wave} / ${wave%3===0?'ELITE RAID INCOMING':'LET THE GOOD VIBES ROLL'}`,3);syncHUD();rebuildFlow();
+  audio.wave();notice(`WAVE ${wave} / ${difficulty.elites?difficulty.elites+' ELITE RAIDERS / '+difficulty.label:difficulty.label}`,3);syncHUD();rebuildFlow();
 }
 function removeEffect(e){scene.remove(e.mesh);if(e.dispose){e.mesh.geometry.dispose();e.mesh.material.dispose()}}
 function particles(position,color,count=6){
@@ -248,7 +249,7 @@ function update(dt){
         const v=flow[z*44+x];if(v>=0&&v<value&&canStand(x-21.5,z-21.5,.42)){value=v;tx=x-21.5;tz=z-21.5}
       }
     }
-    if(distance>1.1){const d=Math.hypot(tx-enemy.x,tz-enemy.z);if(d>.05){const speed=(enemy.elite?1.7:1.35)+Math.min(wave,12)*.075;move(enemy,(tx-enemy.x)/d*dt*speed,(tz-enemy.z)/d*dt*speed,.4)}}
+    if(distance>1.1){const d=Math.hypot(tx-enemy.x,tz-enemy.z);if(d>.05){const speed=enemy.speed;move(enemy,(tx-enemy.x)/d*dt*speed,(tz-enemy.z)/d*dt*speed,.4)}}
     // Lightweight separation prevents Raiders occupying exactly the same space.
     for(const other of enemies){if(other===enemy)continue;const dx=enemy.x-other.x,dz=enemy.z-other.z,d=Math.hypot(dx,dz);if(d>.01&&d<.8)move(enemy,dx/d*dt*.45,dz/d*dt*.45,.4)}
     enemy.model.position.set(enemy.x,Math.sin(elapsed*5+enemy.phase)*.025,enemy.z);
@@ -258,7 +259,7 @@ function update(dt){
     enemy.model.userData.arms.forEach((arm,i)=>arm.rotation.x=distance<1.7?-1.15:stride*(i?-1:1)*.7);
     if(enemy.model.userData.spinner)enemy.model.userData.spinner.rotation.y+=dt*9;
     if(distance<1.5&&enemy.attack<=0&&invincible<=0&&player.y<.9){
-      player.hp=Math.max(0,player.hp-(enemy.elite?18:10));enemy.attack=.8;invincible=.35;audio.damage();$('damage-flash').style.opacity='.45';
+      player.hp=Math.max(0,player.hp-enemy.damage);enemy.attack=enemy.attackInterval;invincible=.35;audio.damage();$('damage-flash').style.opacity='.45';
       if(player.hp<=0){die();break}
     }
   }
@@ -270,7 +271,7 @@ function update(dt){
 }
 function render(dt){
   if(!renderer)return;
-  for(const model of arena.animated){model.rotation.y+=dt*.45;model.position.y+=Math.sin(clock*1.5)*dt*.06}
+  for(const model of arena.animated){if(model.userData.rotationAxis==='z')model.rotation.z+=dt*(model.userData.rotationSpeed??.22);else{model.rotation.y+=dt*.45;model.position.y+=Math.sin(clock*1.5)*dt*.06}}
   arena.portals.forEach((portal,i)=>{portal.children[0].rotation.z=clock*.25+i;portal.children[1].material.opacity=.18+Math.sin(clock*2+i)*.05});
   if(weaponModel){
     const bob=mode==='playing'&&(keys.w||keys.s||keys.a||keys.d)?Math.sin(elapsed*10)*.009:0;
@@ -283,11 +284,11 @@ function render(dt){
   renderer.autoClear=true;renderer.render(scene,camera);renderer.autoClear=false;renderer.clearDepth();renderer.render(weaponScene,weaponCamera);
 }
 function loop(t){
-  const dt=Math.min((t-last)/1000,.04);last=t;
+  const dt=Math.min((t-last)/1000,.08);last=t;
   if(mode==='playing'){clock+=dt;update(dt);render(dt)}
   requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
 
 // A read-only status surface for diagnostics; gameplay state remains internal.
-window.raiderStatus=()=>({mode,engine:'Three.js WebGL 3D',wave,score,kills,health:player.hp,enemies:enemies.length,weapon:weapons[weaponIndex].name,ammo:ammo[weaponIndex],reloading:reloadTime>0,position:{x:player.x,y:player.y,z:player.z},renderer:renderer?.info.render});
+window.raiderStatus=()=>({mode,engine:'Three.js WebGL 3D',wave,score,kills,health:player.hp,enemies:enemies.length,difficulty:waveDifficulty(wave),scenery:arena?{grass:arena.grassCount,flowers:arena.flowerCount}:null,weapon:weapons[weaponIndex].name,ammo:ammo[weaponIndex],reloading:reloadTime>0,position:{x:player.x,y:player.y,z:player.z},renderer:renderer?.info.render});

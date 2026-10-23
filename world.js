@@ -1,4 +1,5 @@
 import * as THREE from './vendor/three.module.min.js';
+import {gardenGround,addGarden} from './scenery.js';
 
 const cube = new THREE.BoxGeometry(1, 1, 1);
 const materials = new Map();
@@ -76,17 +77,18 @@ function concreteTexture(tile = false) {
 }
 export function makeArena(scene,mobile){
   const colliders=[],solidMeshes=[],animated=[],portals=[];
-  scene.background=new THREE.Color(0xc4e1e8);scene.fog=new THREE.Fog(0xd7e5df,35,90);
+  scene.background=new THREE.Color(0xc4e1e8);scene.fog=new THREE.Fog(0xd7e5df,45,95);
   scene.add(new THREE.HemisphereLight(0xeaf5ff,0xc8bda2,1.8));
   const sun=new THREE.DirectionalLight(0xfff2db,3.1);sun.position.set(-16,25,14);sun.castShadow=true;
-  sun.shadow.mapSize.set(mobile?512:2048,mobile?512:2048);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;sun.shadow.normalBias=.025;sun.shadow.bias=-.0001;sun.shadow.radius=3;scene.add(sun);
-  const wallTexture=concreteTexture(),floorTexture=concreteTexture(true);
+  sun.shadow.mapSize.set(mobile?512:1024,mobile?512:1024);sun.shadow.camera.left=-28;sun.shadow.camera.right=28;sun.shadow.camera.top=28;sun.shadow.camera.bottom=-28;sun.shadow.normalBias=.025;sun.shadow.bias=-.0001;sun.shadow.radius=3;scene.add(sun);
+  const wallTexture=concreteTexture();
   function surface(texture,color,w,h){
     const map=texture.clone();map.repeat.set(w,h);map.needsUpdate=true;
     const bump=map.clone();bump.colorSpace=THREE.NoColorSpace;bump.needsUpdate=true;
     return new THREE.MeshStandardMaterial({color,map,bumpMap:bump,bumpScale:.007,roughness:.91,metalness:0});
   }
-  const floor=new THREE.Mesh(new THREE.PlaneGeometry(44,44),surface(floorTexture,0xeee2bf,22,22));
+  const floorMap=gardenGround();const floorBump=floorMap.clone();floorBump.colorSpace=THREE.NoColorSpace;
+  const floor=new THREE.Mesh(new THREE.PlaneGeometry(44,44),new THREE.MeshStandardMaterial({map:floorMap,bumpMap:floorBump,bumpScale:.035,roughness:.96}));
   floor.rotation.x=-Math.PI/2;floor.position.y=-.015;floor.receiveShadow=true;scene.add(floor);solidMeshes.push(floor);
   function solid(x,z,w,d,h,color){
     const mesh=new THREE.Mesh(cube,surface(wallTexture,color,Math.max(w,d)/2.5,h/2.5));mesh.position.set(x,h/2,z);mesh.scale.set(w,h,d);mesh.castShadow=true;mesh.receiveShadow=true;scene.add(mesh);solidMeshes.push(mesh);colliders.push({x,z,w:w/2,d:d/2});return mesh;
@@ -112,5 +114,6 @@ export function makeArena(scene,mobile){
     box(scene,x,.12,z,cell+.035,.16,cell*2+.035,0xc4baa1);
   }
   scene.traverse(object=>{if(object.isMesh&&!solidMeshes.includes(object))solidMeshes.push(object)});
-  return {colliders,solidMeshes,animated,portals};
+  const garden=addGarden(scene,mobile,colliders);animated.push(...garden.animated);
+  return {colliders,solidMeshes,animated,portals,grassCount:garden.grassCount,flowerCount:garden.flowerCount};
 }

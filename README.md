@@ -4,8 +4,8 @@ A standalone, true 3D browser survival game built with Three.js. The bright crea
 
 ## What's in the arena
 
-- The classic open-grid arena: a square pastel perimeter, four double-cell cover columns in the original map positions, and a clear centre. Concrete grain, subtle slab joints, surface bump mapping, matte materials, and directional shadows add realism without the newer playground props. The arena remains rendered with perspective so the 3D characters, cover, and shooting share consistent depth.
-- Four original voxel interpretations of the collection characters: glowing eyes, walking limbs, different hats/antennas, a rotating propeller, and tougher elite variants every third wave. These are procedural fan-game models, not official 3D collection assets.
+- A grassy outdoor arena inspired by the approved mockup: individual grass blades, wildflowers, dirt lanes, worn entry paving, moss accents, timber fencing, trees, rolling hills, a village, and an animated windmill. The square perimeter, four original cover columns, movement boundaries, and open combat lanes are preserved. Scenery beyond the boundary is decorative; ground plants do not block movement or shots. Static repeated scenery is instanced, with fewer plants and trees on mobile.
+- Four original voxel interpretations of the collection characters: glowing eyes, walking limbs, different hats/antennas, a rotating propeller, and elite variants joining from wave 3, with more elites every 3 waves. These are procedural fan-game models, not official 3D collection assets.
 - Three detailed first-person weapons, hand/sleeve models, recoil, muzzle flashes, tracers, aiming, magazines, and reload animations.
 - A pulse blaster (16 rounds), automatic rifle (30 rounds), and eight-pellet shotgun (6 rounds, shorter range). Reserve ammo is unlimited; empty weapons reload on the next firing attempt.
 - Shield recovery on takedowns, wave-clear bonuses, local best score, and desktop/touch controls.
@@ -44,3 +44,18 @@ Three.js 0.180.0's browser module and core module were obtained from the officia
 ## Validation
 
 `tests/browser-check.py` uses Python Playwright and installed Chromium. With the static server running, use `RAIDERS_URL=http://127.0.0.1:8000 python3 tests/browser-check.py`. Its isolated test hooks are added by browser routing, never to the shipped game. The checks exercise real 3D ray hits, all weapons and reloads, wall occlusion, shotgun range, auto fire, aiming, hopping, collision, waves/elites, character selection, pause/restart, audio output and mixing, and mobile touch interaction. Software WebGL in headless Chromium can run more slowly than a hardware-accelerated browser.
+
+## Wave difficulty
+
+Difficulty is defined in `difficulty.js` and increases automatically with every wave. Regular health gains 7 points per wave; elite health gains 13. Enemy numbers rise to a maximum of 24, movement speed rises to a bounded maximum, damage increases every two waves, attack intervals shorten to a 0.5-second floor, and elite counts increase every three waves from wave 3 (up to six). Player weapon damage is unchanged.
+
+| Wave | Raiders | Elites included | Regular shield/health |
+| --- | --- | --- | --- |
+| 1 | 6 | 0 | 48 |
+| 3 | 8 | 1 | 62 |
+| 6 | 11 | 2 | 83 |
+| 12 | 17 | 4 | 125 |
+
+Run `node tests/difficulty-check.mjs` for progression checks across 60 waves. The browser checks also verify actual wave 1/3/6/12 spawns and the live scenery.
+
+The generated image under `design/` is the approved visual target; implemented WebGL scenery is a procedural interpretation rather than a pixel-identical reproduction of the concept image.
